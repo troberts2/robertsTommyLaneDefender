@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float playerSpeed;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField]private float fireRate;
+    [SerializeField]private float lastShot;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,25 +19,27 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Clamper();
-        horizontal = Input.GetAxisRaw("Horizontal");
+        MovementClamper();
+        Shoot();
     }
 
     private void FixedUpdate()
     {  
-        rb.velocity = new Vector2(horizontal * MoveSpeed, vertical * MoveSpeed);
+        //Clamper();
     }
 
-    void Clamper()
+    void MovementClamper()
     {
-        var pos = transform.position;
-        pos.y =  Mathf.Clamp(-8.5f, transform.position.y, 0f);
-        transform.position = pos;
-
+        float yMove = Input.GetAxis("Vertical") * Time.deltaTime * playerSpeed;
+        transform.Translate(0f, yMove, 0f);
+        Vector3 clampedPosition = transform.position;
+        clampedPosition.y = Mathf.Clamp(clampedPosition.y, -4.3f, 3.5f);
+        transform.position = clampedPosition;
     }
-
-    void Movement()
-    {
-        targetvelocity =  new Vector2(horizonal * PlayerSpeed * Time.deltaTime, rb.velocity.y);
+    void Shoot(){
+        if(Input.GetKey(KeyCode.Space) && Time.time > fireRate + lastShot){
+            Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+            lastShot = Time.time;
+        }
     }
 }
